@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevHub Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        :root {
+            --bg-color: #050505;
+            --surface-color: #0f0f11;
+            --surface-light: #16161a;
+            --border-color: #27272a;
+            --accent-primary: #9333ea; /* Purple */
+            --accent-secondary: #3b82f6; /* Blue */
+            --accent-glow: rgba(147, 51, 234, 0.4);
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(147, 51, 234, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+
+        /* Subtle Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hub-container {
+            background: rgba(15, 15, 17, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: rgba(10, 10, 12, 0.6);
+            border-right: 1px solid var(--border-color);
+        }
+
+        /* Navigation item Xenon style */
+        .nav-item {
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: #fff;
+        }
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(147, 51, 234, 0.1) 0%, transparent 100%);
+            color: #fff;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 3px;
+            background: var(--accent-primary);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px var(--accent-primary);
+        }
+
+        .hub-card {
+            background: var(--surface-light);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hub-card:hover {
+            border-color: rgba(147, 51, 234, 0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 15px rgba(147, 51, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .hub-btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), #6b21a8);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.2s;
+        }
+        .hub-btn-primary:hover {
+            box-shadow: 0 0 15px var(--accent-glow);
+            filter: brightness(1.1);
+        }
+
+        .hub-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+        .hub-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.2);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .content-section { display: none; animation: fadeIn 0.3s ease forwards; }
+        .content-section.active { display: flex; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Neon text utility */
+        .text-glow {
+            text-shadow: 0 0 10px rgba(147, 51, 234, 0.5);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="hub-container w-full max-w-6xl h-[85vh] flex flex-col md:flex-row relative z-10">
+        
+        <!-- Top bar decorative elements -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-20"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar w-full md:w-64 flex-shrink-0 flex flex-col h-full hidden md:flex pt-6 relative z-10">
+            <!-- Logo/Brand -->
+            <div class="px-6 pb-6 border-b border-white/5 flex items-center space-x-3">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(147,51,234,0.4)]">
+                    <i class="ph ph-terminal-window text-white"></i>
+                </div>
+                <span class="font-bold text-lg tracking-wider text-glow">DEV.HUB</span>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 overflow-y-auto custom-scrollbar px-2 py-6 space-y-1">
+                <p class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Menu</p>
+                <a href="#" data-target="about" class="nav-item active flex items-center px-4 py-2.5 text-sm text-gray-400 rounded-lg">
+                    <i class="ph ph-user text-lg mr-3"></i> Profile
+                </a>
+                <a href="#" data-target="education" class="nav-item flex items-center px-4 py-2.5 text-sm text-gray-400 rounded-lg">
+                    <i class="ph ph-graduation-cap text-lg mr-3"></i> Education
+                </a>
+                <a href="#" data-target="skills" class="nav-item flex items-center px-4 py-2.5 text-sm text-gray-400 rounded-lg">
+                    <i class="ph ph-code text-lg mr-3"></i> Skills
+                </a>
+                <a href="#" data-target="portfolio" class="nav-item flex items-center px-4 py-2.5 text-sm text-gray-400 rounded-lg">
+                    <i class="ph ph-cpu text-lg mr-3"></i> Projects
+                </a>
+                <a href="#" data-target="contact" class="nav-item flex items-center px-4 py-2.5 text-sm text-gray-400 rounded-lg">
+                    <i class="ph ph-paper-plane-tilt text-lg mr-3"></i> Contact
+                </a>
+            </nav>
+
+            <!-- User Profile Section -->
+            <div class="p-4 bg-black/20 border-t border-white/5">
+                <div class="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
+                    <div class="relative">
+                        <img src="https://cdn.discordapp.com/attachments/1487132369269035010/1540932479710658660/582442164354251877.jpg?ex=6a8bc0b4&is=6a8a6f34&hm=1cd720c3c26a43c3e51bfbbfb3fa9a1789631f92b7e47165bdbf964cb94cc2cf" alt="User" class="w-9 h-9 rounded-md border border-purple-500/30">
+                        <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0f0f11]"></div>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="text-sm font-medium text-white truncate">พงษ์พิสิษฐ์</p>
+                        <p class="text-[11px] text-gray-500 font-mono truncate">@developer</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full relative z-10 pt-8 px-6 md:px-12 pb-8 overflow-hidden bg-gradient-to-b from-transparent to-black/30">
+            
+            <!-- About Section -->
+            <div id="about" class="content-section active flex-col h-full">
+                <header class="mb-8 shrink-0">
+                    <div class="inline-block px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-400 text-xs font-mono mb-3">
+                        <i class="ph ph-broadcast mr-1"></i> STATUS: ONLINE
+                    </div>
+                    <h1 class="text-4xl font-bold text-white tracking-tight">System.<span class="text-purple-500">Init</span>() 👋</h1>
+                </header>
+
+                <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 space-y-6">
+                    <div class="hub-card p-6 md:p-8 flex flex-col md:flex-row gap-8 items-center md:items-start relative overflow-hidden">
+                        <!-- Decorative glow inside card -->
+                        <div class="absolute -right-20 -top-20 w-64 h-64 bg-purple-600/10 rounded-full blur-[50px] pointer-events-none"></div>
+
+                        <div class="relative shrink-0">
+                            <div class="w-32 h-32 rounded-xl bg-gray-900 p-1 border border-gray-800 shadow-xl relative z-10">
+                                <img src="https://cdn.discordapp.com/attachments/1487132369269035010/1540931629717913661/Board_cover.jpg?ex=6a8bbfe9&is=6a8a6e69&hm=8553ce02deae8c813db5cdc8d28b54abae92c3e7b5ebf28a1cce1bbae4449d78" alt="Profile" class="w-full h-full rounded-lg">
+                            </div>
+                            <div class="absolute inset-0 border-2 border-purple-500 rounded-xl transform rotate-3 scale-105 opacity-30 z-0"></div>
+                        </div>
+                        
+                        <div class="relative z-10">
+                            <h2 class="text-2xl font-bold text-white mb-2 flex items-center">
+                                สวัสดีครับ, ผม พงษ์พิสิษฐ์
+                            </h2>
+                            <p class="text-sm text-gray-400 leading-relaxed mb-6 font-mono text-[13px]">
+                                > Full-stack Developer in training.<br>
+                                > Passionate about clean code, scalable architecture, and modern UI/UX.<br>
+                                > Always exploring new technologies to build better digital experiences.
+                            </p>
+                            <div class="flex space-x-3">
+                                <a href="https://www.facebook.com/share/19McYvxmoN/" download class="hub-btn-primary px-5 py-2.5 rounded-lg text-sm font-medium flex items-center shadow-lg">
+                                    <i class="ph ph-download-simple mr-2"></i> facebook
+                                </a>
+                                <a href="https://github.com/nofacejhnk" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 bg-zinc-800/50 text-gray-300 border border-zinc-700 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors flex items-center">
+                                    <i class="ph ph-github-logo mr-2"></i> GitHub
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="hub-card p-5 group">
+                            <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-crosshair text-2xl text-blue-500"></i>
+                            </div>
+                            <h3 class="text-white font-medium mb-2">Mission Objective</h3>
+                            <p class="text-sm text-gray-400">พัฒนาเป็น Full-stack Developer ที่สามารถสร้างระบบที่มีประสิทธิภาพและรองรับผู้ใช้งานจำนวนมากได้</p>
+                        </div>
+                        <div class="hub-card p-5 group">
+                            <div class="w-10 h-10 rounded-lg bg-pink-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="ph ph-lightning text-2xl text-pink-500"></i>
+                            </div>
+                            <h3 class="text-white font-medium mb-2">Core Interests</h3>
+                            <p class="text-sm text-gray-400">Web Development, System Design, Open Source, and emerging tech stacks.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="education" class="content-section flex-col h-full">
+                <header class="mb-8 shrink-0">
+                    <h1 class="text-3xl font-bold text-white tracking-tight mb-2">Education Log</h1>
+                    <p class="text-gray-400 text-sm font-mono">> tracking academic progress...</p>
+                </header>
+                <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 space-y-4 relative">
+                    
+                    <!-- Timeline Line -->
+                    <div class="absolute left-6 top-4 bottom-4 w-[2px] bg-zinc-800 z-0"></div>
+
+                    <div class="hub-card p-5 pl-14 relative z-10 border-l-4 border-l-purple-500 overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 shadow-[0_0_10px_#a855f7]"></div>
+                        <div class="absolute -left-1.5 top-6 w-3 h-3 bg-purple-500 rounded-full border-4 border-[#16161a]"></div>
+                        
+                        <div class="flex justify-between items-start mb-2">
+                            <h2 class="text-lg font-bold text-white">มหาวิทยาลัยชุมชนหนองบัวลำภู</h2>
+                            <span class="text-[10px] font-mono text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-1 rounded">ACTIVE</span>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-1">สาขาวิชา เทคโนโลยีดิจิทัลธุรกิจ</p>
+                        <p class="text-xs text-gray-500 mb-3 font-mono">25xx - Present</p>
+                        <p class="text-sm text-gray-400 leading-relaxed bg-black/20 p-3 rounded-md border border-white/5">
+                            ศึกษาเกี่ยวกับ Data Structures, Algorithms, Software Engineering, และ Database Systems.
+                        </p>
+                    </div>
+
+                    <div class="hub-card p-5 pl-14 relative z-10 opacity-70 hover:opacity-100 transition-opacity">
+                        <div class="absolute -left-1.5 top-6 w-3 h-3 bg-zinc-600 rounded-full border-4 border-[#16161a]"></div>
+                        
+                        <h2 class="text-lg font-bold text-white mb-2">โรงเรียนเก่า บ้านข่าดอนเข็ม</h2>
+                        <p class="text-sm text-gray-300 mb-1">สายการเรียน วิทย์-อิง</p>
+                        <p class="text-xs text-gray-500 mb-3 font-mono">25xx - 25xx</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="skills" class="content-section flex-col h-full">
+                <header class="mb-8 shrink-0">
+                    <h1 class="text-3xl font-bold text-white tracking-tight mb-2">Tech Stack</h1>
+                    <p class="text-gray-400 text-sm font-mono">> modules loaded</p>
+                </header>
+                <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 space-y-8">
+                    
+                    <!-- Frontend -->
+                    <div class="relative">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center text-blue-500 border border-blue-500/20 mr-3">
+                                <i class="ph ph-browser"></i>
+                            </div>
+                            <h3 class="text-white font-semibold">Frontend Architecture</h3>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            <div class="bg-black/30 border border-zinc-800 rounded-lg p-3 flex flex-col items-center justify-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all">
+                                <i class="ph ph-file-html text-2xl text-orange-500 mb-2"></i>
+                                <span class="text-xs font-medium text-gray-300">HTML5</span>
+                            </div>
+                            <div class="bg-black/30 border border-zinc-800 rounded-lg p-3 flex flex-col items-center justify-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all">
+                                <i class="ph ph-file-css text-2xl text-blue-400 mb-2"></i>
+                                <span class="text-xs font-medium text-gray-300">Tailwind CSS</span>
+                            </div>
+                            <div class="bg-black/30 border border-zinc-800 rounded-lg p-3 flex flex-col items-center justify-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all">
+                                <i class="ph ph-file-js text-2xl text-yellow-400 mb-2"></i>
+                                <span class="text-xs font-medium text-gray-300">JavaScript</span>
+                            </div>
+                            <div class="bg-black/30 border border-zinc-800 rounded-lg p-3 flex flex-col items-center justify-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all">
+                                <i class="ph ph-atom text-2xl text-cyan-400 mb-2"></i>
+                                <span class="text-xs font-medium text-gray-300">python</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backend -->
+                    <div class="relative">
+                        <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded bg-purple-500/10 flex items-center justify-center text-purple-500 border border-purple-500/20 mr-3">
+                                <i class="ph ph-database"></i>
+                            </div>
+                            <h3 class="text-white font-semibold">Backend & Database</h3>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                            <div class="bg-black/30 border border-zinc-800 rounded-lg p-3 flex flex-col items-center justify-center hover:border-purple-500/50 hover:bg-purple-500/5 transition-all">
+                                <i class="ph ph-hexagon text-2xl text-green-500 mb-2"></i>
+                                <span class="text-xs font-medium text-gray-300">Node.js</span>
+                            </div>
+                            <div class="bg-black/30 border border-zinc-800 rounded-lg p-3 flex flex-col items-center justify-center hover:border-purple-500/50 hover:bg-purple-500/5 transition-all">
+                                <i class="ph ph-hard-drives text-2xl text-blue-300 mb-2"></i>
+                                <span class="text-xs font-medium text-gray-300">SQL / MySQL</span>
+                            </div>
+                            <div class="bg-black/30 border border-zinc-800 rounded-lg p-3 flex flex-col items-center justify-center hover:border-purple-500/50 hover:bg-purple-500/5 transition-all">
+                                <i class="ph ph-leaf text-2xl text-green-600 mb-2"></i>
+                                <span class="text-xs font-medium text-gray-300">MongoDB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tools -->
+                    <div class="relative">
+                         <div class="flex items-center mb-4">
+                            <div class="w-8 h-8 rounded bg-pink-500/10 flex items-center justify-center text-pink-500 border border-pink-500/20 mr-3">
+                                <i class="ph ph-wrench"></i>
+                            </div>
+                            <h3 class="text-white font-semibold">Tools & Utilities</h3>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1.5 bg-black/40 border border-zinc-700 rounded text-xs text-gray-300 font-mono hover:border-pink-500/50 cursor-default transition-colors">Git</span>
+                            <span class="px-3 py-1.5 bg-black/40 border border-zinc-700 rounded text-xs text-gray-300 font-mono hover:border-pink-500/50 cursor-default transition-colors">GitHub</span>
+                            <span class="px-3 py-1.5 bg-black/40 border border-zinc-700 rounded text-xs text-gray-300 font-mono hover:border-pink-500/50 cursor-default transition-colors">VS Code</span>
+                            <span class="px-3 py-1.5 bg-black/40 border border-zinc-700 rounded text-xs text-gray-300 font-mono hover:border-pink-500/50 cursor-default transition-colors">Figma</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="portfolio" class="content-section flex-col h-full">
+                <header class="mb-6 shrink-0 flex justify-between items-end">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white tracking-tight mb-2">Deployments</h1>
+                        <p class="text-gray-400 text-sm font-mono">> executed projects</p>
+                    </div>
+                </header>
+                <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 grid grid-cols-1 md:grid-cols-2 gap-5">
+                     
+                    <!-- Project 1 -->
+                    <div class="hub-card group overflow-hidden flex flex-col h-64">
+                        <div class="h-32 bg-zinc-900 border-b border-zinc-800 flex items-center justify-center relative overflow-hidden">
+                            <!-- Code pattern bg -->
+                            <div class="absolute inset-0 opacity-10 text-[8px] font-mono p-2 text-green-500 leading-none break-all pointer-events-none">
+                                function init(){const x=document.getElementById("app");x.render(<App/>);}init();...
+                            </div>
+                            <i class="ph ph-shopping-cart text-4xl text-purple-500/50 group-hover:text-purple-400 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all rounded-full z-10"></i>
+                            
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm z-20">
+                                <button class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-xs font-bold text-white tracking-wider border border-purple-400/50 shadow-[0_0_15px_rgba(147,51,234,0.6)]">VIEW SOURCE</button>
+                            </div>
+                        </div>
+                        <div class="p-4 flex-1 flex flex-col bg-zinc-950/50">
+                            <h3 class="text-white font-bold mb-1 text-sm">wepsite</h3>
+                            <p class="text-xs text-gray-400 mb-3 flex-1 line-clamp-2">พัฒนาด้วย python และ c# จัดการ State และ API</p>
+                            <div class="flex gap-2">
+                                <span class="text-[10px] font-mono text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-1.5 py-0.5 rounded">React</span>
+                                <span class="text-[10px] font-mono text-green-400 bg-green-400/10 border border-green-400/20 px-1.5 py-0.5 rounded">Node.js</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 -->
+                    <div class="hub-card group overflow-hidden flex flex-col h-64">
+                        <div class="h-32 bg-zinc-900 border-b border-zinc-800 flex items-center justify-center relative overflow-hidden">
+                             <div class="absolute inset-0 opacity-10 text-[8px] font-mono p-2 text-blue-500 leading-none break-all pointer-events-none">
+                                [GET] /api/tasks -> 200 OK. { "status": "success", "data": [...] } ...
+                            </div>
+                            <i class="ph ph-kanban text-4xl text-blue-500/50 group-hover:text-blue-400 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all rounded-full z-10"></i>
+                            
+                            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm z-20">
+                                <button class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-xs font-bold text-white tracking-wider border border-blue-400/50 shadow-[0_0_15px_rgba(59,130,246,0.6)]">VIEW SOURCE</button>
+                            </div>
+                        </div>
+                        <div class="p-4 flex-1 flex flex-col bg-zinc-950/50">
+                            <h3 class="text-white font-bold mb-1 text-sm">Task GUI</h3>
+                            <p class="text-xs text-gray-400 mb-3 flex-1 line-clamp-2">UI ทันสมัย รองรับ Drag & Drop โมเดิลและสวย ใช้ง่าย</p>
+                            <div class="flex gap-2">
+                                <span class="text-[10px] font-mono text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 px-1.5 py-0.5 rounded">Vanilla JS</span>
+                                <span class="text-[10px] font-mono text-blue-400 bg-blue-400/10 border border-blue-400/20 px-1.5 py-0.5 rounded">Tailwind</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="contact" class="content-section flex-col h-full">
+                <header class="mb-8 shrink-0">
+                    <h1 class="text-3xl font-bold text-white tracking-tight mb-2">Establish Connection</h1>
+                    <p class="text-gray-400 text-sm font-mono">> open communication channels</p>
+                </header>
+                <div class="flex-1 overflow-y-auto custom-scrollbar pr-4 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl">
+                    
+                    <div class="space-y-4">
+                        <a href="mailto:email@example.com" class="hub-card p-4 flex items-center group">
+                            <div class="w-12 h-12 rounded bg-zinc-900 border border-zinc-800 flex items-center justify-center text-gray-400 group-hover:text-purple-400 group-hover:border-purple-500/30 transition-colors mr-4">
+                                <i class="ph ph-envelope-simple text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-mono text-purple-400 mb-1">EMAIL</p>
+                                <p class="text-white font-medium">phongpisit@example.com</p>
+                            </div>
+                        </a>
+
+                        <a href="#" class="hub-card p-4 flex items-center group">
+                            <div class="w-12 h-12 rounded bg-zinc-900 border border-zinc-800 flex items-center justify-center text-gray-400 group-hover:text-blue-400 group-hover:border-blue-500/30 transition-colors mr-4">
+                                <i class="ph ph-github-logo text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-mono text-blue-400 mb-1">GITHUB</p>
+                                <p class="text-white font-medium">github.com/phongpisit</p>
+                            </div>
+                        </a>
+
+                        <a href="#" class="hub-card p-4 flex items-center group">
+                            <div class="w-12 h-12 rounded bg-zinc-900 border border-zinc-800 flex items-center justify-center text-gray-400 group-hover:text-blue-500 group-hover:border-blue-500/30 transition-colors mr-4">
+                                <i class="ph ph-discord-logo text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-mono text-blue-500 mb-1">DISCORD</p>
+                                <p class="text-white font-medium">Developer#1234</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Terminal Style Form -->
+                    <div class="hub-card p-1 rounded-lg overflow-hidden bg-zinc-900 border-zinc-700">
+                        <div class="bg-zinc-950 px-3 py-2 flex items-center border-b border-zinc-800">
+                            <div class="flex space-x-1.5 mr-3">
+                                <div class="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-green-500/80"></div>
+                            </div>
+                            <span class="text-[10px] font-mono text-gray-500">send_message.sh</span>
+                        </div>
+                        <form id="discord-form" class="p-4 bg-[#0a0a0c] space-y-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-mono text-purple-400">VAR_NAME</label>
+                                <input type="text" id="sender-name" required placeholder="Enter your name..." class="hub-input w-full py-2 px-3 rounded text-sm font-mono placeholder-zinc-600">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-mono text-purple-400">VAR_PAYLOAD</label>
+                                <textarea id="sender-message" required placeholder="Enter message payload..." rows="4" class="hub-input w-full py-2 px-3 rounded text-sm font-mono placeholder-zinc-600 resize-none"></textarea>
+                            </div>
+                            <button type="submit" id="submit-btn" class="w-full py-2.5 bg-zinc-800 hover:bg-purple-600 text-white rounded text-xs font-bold font-mono tracking-widest transition-colors border border-zinc-700 hover:border-purple-500">
+                                EXECUTE
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navItems = document.querySelectorAll('.nav-item');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Update Sidebar Active State
+                    navItems.forEach(nav => {
+                        nav.classList.remove('active', 'text-white');
+                        nav.classList.add('text-gray-400');
+                    });
+                    item.classList.add('active', 'text-white');
+                    item.classList.remove('text-gray-400');
+
+                    // Switch Main Content with simple animation restart
+                    const targetId = item.getAttribute('data-target');
+                    if (targetId) {
+                        contentSections.forEach(section => {
+                            section.classList.remove('active');
+                        });
+                        const targetSection = document.getElementById(targetId);
+                        if (targetSection) {
+                            // Re-trigger animation
+                            targetSection.style.animation = 'none';
+                            targetSection.offsetHeight; /* trigger reflow */
+                            targetSection.style.animation = null;
+                            
+                            targetSection.classList.add('active');
+                        }
+                    }
+                });
+            });
+
+            // --- Discord Webhook Logic ---
+            const discordForm = document.getElementById('discord-form');
+            if (discordForm) {
+                discordForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const btn = document.getElementById('submit-btn');
+                    const name = document.getElementById('sender-name').value;
+                    const message = document.getElementById('sender-message').value;
+                    
+                    // ⚠️ นำ URL Webhook ของ Discord มาใส่ในเครื่องหมายคำพูดด้านล่างนี้
+                    const WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1540934950264774678/bxXL7lrhIin57VpbSIqk_K4q5Y--HR7s6mtU5IqDUrDjodDtLF3zdJs4nVPP0olyFc2f';
+                    
+                    if (WEBHOOK_URL === 'YOUR_DISCORD_WEBHOOK_URL_HERE' || !WEBHOOK_URL) {
+                        const originalBtnText = btn.innerText;
+                        btn.innerText = 'ERROR: MISSING WEBHOOK URL';
+                        btn.classList.replace('bg-zinc-800', 'bg-red-900');
+                        btn.classList.replace('hover:bg-purple-600', 'hover:bg-red-800');
+                        setTimeout(() => {
+                            btn.innerText = originalBtnText;
+                            btn.classList.replace('bg-red-900', 'bg-zinc-800');
+                            btn.classList.replace('hover:bg-red-800', 'hover:bg-purple-600');
+                        }, 3000);
+                        return;
+                    }
+
+                    // จัดรูปแบบข้อความที่จะส่งเข้า Discord (ใช้ Embed เพื่อความสวยงาม)
+                    const payload = {
+                        username: "DevHub Terminal",
+                        avatar_url: "https://ui-avatars.com/api/?name=Terminal&background=9333ea&color=fff",
+                        embeds: [{
+                            title: "🚨 New Transmission Received",
+                            color: 9646938, // สีม่วง
+                            fields: [
+                                { name: "> SENDER_NAME", value: `\`\`\`${name}\`\`\``, inline: false },
+                                { name: "> MESSAGE_PAYLOAD", value: `\`\`\`${message}\`\`\``, inline: false }
+                            ],
+                            footer: { text: "System Notification" },
+                            timestamp: new Date().toISOString()
+                        }]
+                    };
+
+                    // แสดงสถานะกำลังโหลด
+                    const originalBtnText = btn.innerText;
+                    btn.innerText = 'EXECUTING...';
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                    try {
+                        const response = await fetch(WEBHOOK_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            btn.innerText = 'TRANSMISSION SUCCESS!';
+                            btn.classList.replace('bg-zinc-800', 'bg-green-700');
+                            btn.classList.replace('hover:bg-purple-600', 'hover:bg-green-600');
+                            btn.classList.replace('border-zinc-700', 'border-green-500');
+                            discordForm.reset(); // ล้างฟอร์ม
+                        } else {
+                            throw new Error('Network response was not ok');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        btn.innerText = 'TRANSMISSION FAILED';
+                        btn.classList.replace('bg-zinc-800', 'bg-red-900');
+                        btn.classList.replace('hover:bg-purple-600', 'hover:bg-red-800');
+                    } finally {
+                        // รีเซ็ตปุ่มกลับเป็นเหมือนเดิมหลังจาก 3 วินาที
+                        setTimeout(() => {
+                            btn.innerText = originalBtnText;
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            btn.className = 'w-full py-2.5 bg-zinc-800 hover:bg-purple-600 text-white rounded text-xs font-bold font-mono tracking-widest transition-colors border border-zinc-700 hover:border-purple-500';
+                        }, 3000);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
